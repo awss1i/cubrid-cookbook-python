@@ -62,6 +62,8 @@ The cookbook ships **62 recipes**. Verification is split:
   set and fall back to in-memory SQLite otherwise.
 - **CUBRID 11.4** runs in the same CI smoke matrix as 11.2 (its `make verify` goldens
   are checked on both versions).
+- The **Flask** pytest suites run against live CUBRID when `CUBRID_TEST_URL` is set
+  and fall back to temporary SQLite databases otherwise.
 
 | Category | Recipes | Verified by |
 |----------|---------|-------------|
@@ -106,6 +108,10 @@ docker compose up -d
 sleep 60  # wait for DB initialization
 
 # Run all tests
+# Flask recipe tests use live CUBRID when CUBRID_TEST_URL is set and fall back
+# to temporary SQLite databases when it is not
+pip install flask flask-sqlalchemy pycubrid sqlalchemy-cubrid httpx pytest
+export CUBRID_TEST_URL="cubrid+pycubrid://dba@localhost:33000/testdb"
 ( cd templates/flask && for d in */tests; do python3 -m pytest "$d" -q; done )
 
 # FastAPI recipe tests use live CUBRID when CUBRID_TEST_URL is set and fall back
