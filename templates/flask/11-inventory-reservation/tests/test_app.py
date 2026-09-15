@@ -9,8 +9,8 @@ from models import InventoryItem, StockReservation  # pyright: ignore[reportImpl
 
 
 @pytest.fixture
-def client(tmp_path):
-    app = create_app({"SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path}/test.db", "TESTING": True})
+def client(database_config):
+    app = create_app({**database_config, "TESTING": True})
     with app.test_client() as c:
         yield c
 
