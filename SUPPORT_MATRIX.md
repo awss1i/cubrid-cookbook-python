@@ -116,7 +116,7 @@ export CUBRID_TEST_URL="cubrid+pycubrid://dba@localhost:33000/testdb"
 
 # FastAPI recipe tests use live CUBRID when CUBRID_TEST_URL is set and fall back
 # to in-memory SQLite when it is not
-pip install fastapi sqlalchemy pycubrid sqlalchemy-cubrid email-validator httpx pytest pytest-asyncio
+pip install fastapi sqlalchemy pycubrid sqlalchemy-cubrid "email-validator>=2" httpx pytest pytest-asyncio
 export CUBRID_TEST_URL="cubrid+pycubrid://dba@localhost:33000/testdb"
 ( cd templates/api-service-fastapi/recipes && for d in */tests; do python3 -m pytest "$d" -q; done )
 
@@ -125,3 +125,9 @@ for f in fundamentals/pycubrid/*.py; do python3 "$f"; done
 for f in fundamentals/sqlalchemy/*.py; do python3 "$f"; done
 for f in fundamentals/pandas/*.py; do python3 "$f"; done
 ```
+
+The pytest suites create and drop their tables in whichever database
+`CUBRID_TEST_URL` points at, and a few table names are shared between suites
+(`inventory_items` in FastAPI recipe 09 and Flask recipe 11, `cookbook_products`
+in Flask recipes 01 and 07). Run the suites one after another against a shared
+instance, as the loops above do, or give concurrent runs separate databases.
