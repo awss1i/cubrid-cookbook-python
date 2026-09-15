@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 import pytest
 from sqlalchemy import select, update
 
-from app import create_app  # pyright: ignore[reportImplicitRelativeImport]
+from app import create_app, naive_utc_now  # pyright: ignore[reportImplicitRelativeImport]
 from database import db  # pyright: ignore[reportImplicitRelativeImport]
 from models import InventoryItem, StockReservation  # pyright: ignore[reportImplicitRelativeImport]
 
@@ -81,7 +81,7 @@ def test_confirm_expired_422(client):
         db.session.execute(
             update(StockReservation)
             .where(StockReservation.reservation_key == "res-ex")
-            .values(expires_at=datetime.now(timezone.utc) - timedelta(seconds=1))
+            .values(expires_at=naive_utc_now() - timedelta(seconds=1))
         )
         db.session.commit()
 
@@ -114,7 +114,7 @@ def test_sweep_expires_stale(client):
         db.session.execute(
             update(StockReservation)
             .where(StockReservation.reservation_key == "res-sw")
-            .values(expires_at=datetime.now(timezone.utc) - timedelta(seconds=5))
+            .values(expires_at=naive_utc_now() - timedelta(seconds=5))
         )
         db.session.commit()
 
@@ -149,7 +149,7 @@ def test_sweep_savepoint_isolation(client):
         db.session.execute(
             update(StockReservation)
             .where(StockReservation.reservation_key.in_(["res-good", "res-bad"]))
-            .values(expires_at=datetime.now(timezone.utc) - timedelta(seconds=5))
+            .values(expires_at=naive_utc_now() - timedelta(seconds=5))
         )
         bad_item = db.session.execute(
             select(InventoryItem).where(InventoryItem.sku == "SKU-BAD")
